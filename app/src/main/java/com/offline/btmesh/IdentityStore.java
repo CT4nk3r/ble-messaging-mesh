@@ -52,6 +52,14 @@ final class IdentityStore {
     }
 
     String exportBundle(String displayName) throws Exception {
+        return exportBundle(displayName, true);
+    }
+
+    String exportCompactBundle(String displayName) throws Exception {
+        return exportBundle(displayName, false);
+    }
+
+    private String exportBundle(String displayName, boolean pretty) throws Exception {
         Identity identity = getOrCreate();
         JSONObject object = new JSONObject();
         object.put("v", 1);
@@ -59,7 +67,7 @@ final class IdentityStore {
         object.put("fingerprint", identity.fingerprint);
         object.put("enc", identity.encryptionPublicB64);
         object.put("sig", identity.signingPublicB64);
-        return object.toString(2);
+        return pretty ? object.toString(2) : object.toString();
     }
 
     private static KeyPair generateEcPair() throws Exception {

@@ -70,6 +70,15 @@ final class MeshRepository implements BleMeshManager.Listener {
         }
     }
 
+    String exportIdentityQrPayload() {
+        try {
+            return identityStore.exportCompactBundle("Android peer");
+        } catch (Exception e) {
+            lastError = e.getMessage();
+            return "";
+        }
+    }
+
     String localFingerprint() {
         try {
             return identityStore.getOrCreate().fingerprint;

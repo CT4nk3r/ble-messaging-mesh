@@ -47,6 +47,9 @@
             android:stateNotNeeded="true"
             android:theme="@style/zxing_CaptureTheme"
             android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".QrDisplayActivity"
+            android:exported="false" />
 
         <service
             android:name=".MeshForegroundService"

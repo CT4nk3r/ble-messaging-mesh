@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,17 +14,13 @@ import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.common.BitMatrix;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -208,29 +203,9 @@ public final class MainActivity extends Activity implements MeshRepository.Liste
 
     private void showIdentityQr() {
         try {
-            String bundle = repository.exportIdentity();
-            ImageView imageView = new ImageView(this);
-            imageView.setAdjustViewBounds(true);
-            imageView.setPadding(dp(12), dp(12), dp(12), dp(12));
-            imageView.setImageBitmap(qrBitmap(bundle, dp(292)));
-
-            TextView fingerprint = text("Fingerprint: " + groupedFingerprint(repository.localFingerprint()), 14, Color.rgb(26, 36, 33));
-            fingerprint.setGravity(Gravity.CENTER_HORIZONTAL);
-            fingerprint.setTextIsSelectable(true);
-
-            LinearLayout layout = new LinearLayout(this);
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(dp(12), dp(8), dp(12), dp(4));
-            layout.addView(imageView);
-            layout.addView(fingerprint);
-
-            new AlertDialog.Builder(this)
-                    .setTitle("Your trusted-contact QR")
-                    .setView(layout)
-                    .setPositiveButton("Close", null)
-                    .show();
-        } catch (Exception e) {
-            toast("Could not generate QR code");
+            startActivity(new Intent(this, QrDisplayActivity.class));
+        } catch (RuntimeException e) {
+            toast("Could not open QR screen: " + safeMessage(e));
         }
     }
 
@@ -286,17 +261,6 @@ public final class MainActivity extends Activity implements MeshRepository.Liste
         } catch (Exception e) {
             toast("That QR is not a valid contact bundle");
         }
-    }
-
-    private Bitmap qrBitmap(String content, int size) throws Exception {
-        BitMatrix matrix = new QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, size, size);
-        Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
-        for (int y = 0; y < size; y++) {
-            for (int x = 0; x < size; x++) {
-                bitmap.setPixel(x, y, matrix.get(x, y) ? Color.BLACK : Color.WHITE);
-            }
-        }
-        return bitmap;
     }
 
     private void requestMeshPermissions() {
