@@ -41,14 +41,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".QrCaptureActivity"
-            android:clearTaskOnLaunch="true"
-            android:screenOrientation="fullSensor"
-            android:stateNotNeeded="true"
-            android:theme="@style/zxing_CaptureTheme"
-            android:windowSoftInputMode="stateAlwaysHidden" />
-        <activity
             android:name=".QrDisplayActivity"
+            android:exported="false" />
+        <activity
+            android:name=".QrScanActivity"
             android:exported="false" />
 
         <service

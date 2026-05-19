@@ -19,14 +19,12 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public final class MainActivity extends Activity implements MeshRepository.Listener {
     private static final int REQ_PERMISSIONS = 100;
+    private static final int REQ_SCAN_QR = 101;
 
     private MeshRepository repository;
     private TextView statusText;
@@ -55,10 +53,14 @@ public final class MainActivity extends Activity implements MeshRepository.Liste
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (result != null) {
-            if (result.getContents() != null) {
-                confirmScannedContact(result.getContents());
+        if (requestCode == REQ_SCAN_QR) {
+            if (resultCode == RESULT_OK && data != null) {
+                String content = data.getStringExtra(QrScanActivity.EXTRA_QR_CONTENT);
+                if (content != null && !content.trim().isEmpty()) {
+                    confirmScannedContact(content);
+                } else {
+                    toast("QR scan did not return contact data");
+                }
             } else {
                 toast("QR scan cancelled");
             }
@@ -216,13 +218,7 @@ public final class MainActivity extends Activity implements MeshRepository.Liste
             return;
         }
         try {
-            IntentIntegrator integrator = new IntentIntegrator(this);
-            integrator.setCaptureActivity(QrCaptureActivity.class);
-            integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
-            integrator.setPrompt("Scan a Bluetooth Mesh identity QR");
-            integrator.setBeepEnabled(false);
-            integrator.setOrientationLocked(false);
-            integrator.initiateScan();
+            startActivityForResult(new Intent(this, QrScanActivity.class), REQ_SCAN_QR);
         } catch (ActivityNotFoundException e) {
             toast("QR scanner activity is missing from this build");
         } catch (RuntimeException e) {
